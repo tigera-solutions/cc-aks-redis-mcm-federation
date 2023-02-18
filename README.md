@@ -7,7 +7,8 @@
 
 ### Create Azure Resources
 
-- Setup your variables in aks-prov/setup.env
+- Setup your variables in ```aks-prov/setup.env```
+- Run the bringup script
 
 ```bash
 bash aks-prov/create.sh

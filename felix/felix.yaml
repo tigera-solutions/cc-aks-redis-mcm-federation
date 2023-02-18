@@ -7,6 +7,7 @@ spec:
   flowLogsFlushInterval: 10s
   flowLogsFileAggregationKindForAllowed: 1
   dnsLogsFlushInterval: 10s
+  flowLogsCollectTcpStats: true
   failsafeInboundHostPorts:
   - protocol: tcp
     port: 22

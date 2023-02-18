@@ -1,277 +1,159 @@
-# azure-aks-mcm-federation
+# cc-aks-redis-mcm-federation
 
-This content was built for free training workshops. 
+> :warning: **This repo is purely a work-in-progress(WIP) and is in active development. Other than contributors, anyone else
+>should probably not try the stuff in this repo and expect it to work as is until it's finished and ready!**
 
-If you're looking for general docs for Calico Enterprise, we recommend you start [here](https://docs.tigera.io)
+## Bringup Sequence
 
-## Create Azure resource groups for each region
+### Create Azure Resources
 
-```
-az group create --name calico-demo-eastus --location eastus
-az group create --name calico-demo-westus2 --location westus2
-az group create --name calico-demo-northeurope --location northeurope
-az group create --name calico-demo-westeurope --location westeurope
-```
+- Setup your variables in aks-prov/setup.env
 
-## Deploy Azure VNETS for each region
-
-```
-az deployment group create --name calico-demo-eastus-vnet --resource-group calico-demo-eastus --template-file aks.eastus-vnets.json
-az deployment group create --name calico-demo-westus2-vnet --resource-group calico-demo-westus2 --template-file aks.westus2-vnets.json
-az deployment group create --name calico-demo-northeurope-vnet --resource-group calico-demo-northeurope --template-file aks.northeurope-vnets.json
-az deployment group create --name calico-demo-westeurope-vnet --resource-group calico-demo-westeurope --template-file aks.westeurope-vnets.json
+```bash
+bash aks-prov/create.sh
 ```
 
-## Deploy Kubernetes clusters into each region using aks-engine
+## Connect to CC
 
-```
-aks-engine deploy --resource-group calico-demo-eastus --location eastus --api-model aks.eastus-engine.json --auth-method cli
-aks-engine deploy --resource-group calico-demo-westus2 --location westus2 --api-model aks.westus2-engine.json --auth-method cli
-aks-engine deploy --resource-group calico-demo-northeurope --location northeurope --api-model aks.northeurope-engine.json --auth-method cli
-aks-engine deploy --resource-group calico-demo-westeurope --location westeurope --api-model aks.westeurope-engine.json --auth-method cli
-```
+We know how to do this
 
-## Configure bidirectional peering between each region
+## Deploy HAProxy-Ingress
 
-![peer](images/01-resource-groups.png)
-
-Inside each resource group select the VNET
-
-![peer](images/02-select-eastus-vnet.png)
-
-Select Peerings
-
-![peer](images/03-select-eastus-vnet-peering.png)
-
-Add Peering
-
-![peer](images/04-add-eastus-vnet-peering.png)
-
-Peer VNETs in both directions for the first region
-
-![peer](images/05-configure-eastus-to-westus2-peering.png)
-
-Add peering for the second region
-
-![peer](images/06-configure-northeurope-to-eastus-peering.png)
-
-Peering should be established between both remote regions
-
-![peer](images/07-eastus-to-all-connected.png)
-
-Peer the VNETs in second region
-
-![peer](images/08-westus-to-all-northeurope-peer.png)
-
-Peering should be established between the two remote regions
-
-![peer](images/09-westus-to-all-connected.png)
-
-Peering should be established between all the regions
-
-![peer](images/10-northeurope-to-all-connected.png)
-
-We should now have routed connectivity over Microsoft's backbone network between the Azure EastUS, WestUS2, NorthEurope, and WestEurope regions
-
-![peer](images/11-map.png)
-
-## Deploy Calico Enterprise on each cluster
-
-1. [Install Calico Enterprise on each cluster](https://docs.tigera.io/getting-started/kubernetes/managed-public-cloud/aks)
-
-We're going to add each cluster to our pre-installed Multi-cluster Management cluster following the MCM [docs](https://docs.tigera.io/maintenance/mcm/configure).
-
-Follow the documentation and complete the rest of the installation steps for each cluster.
-
-![ce](images/12-calico-enterprise-mcm.png)
-
-## Deploy Calico Enterprise Federation for Kubernetes
-
-1. [Create kubeconfig files](https://docs.tigera.io/networking/federation/kubeconfig)
-
-Apply the Federation RBAC and service account for each cluster.
-
-```
-for REGION in eastus westus2 northeurope westeurope
-do
-export KUBECONFIG="$(pwd)/_output/calico-demo-$REGION/kubeconfig/kubeconfig.$REGION.json"
-kubectl apply -f federation-rem-rbac-kdd.yaml
-kubectl apply -f federation-remote-sa.yaml
-done
+```bash
+bash haproxy-ingress/install.sh
 ```
 
-Run the `create-remote-cluster-kubeconfigs.sh` to quicky create kubeconfigs for each cluster.
+Check the internal Azure AKS LB assigned the svc an EXTERNAL-IP off the Vnet subnet
 
-```
-./create-remote-cluster-kubeconfigs.sh
-```
-
-2. [Configure access to remote clusters](https://docs.tigera.io/networking/federation/configure-rcc)
-
-calico-demo-eastus
-
-```
-export KUBECONFIG="$(pwd)/_output/calico-demo-eastus/kubeconfig/kubeconfig.eastus.json"
-kubectl create secret generic remote-cluster-secret-calico-demo-westus2 -n calico-system --from-literal=datastoreType=kubernetes --from-file=kubeconfig=calico-demo-westus2-kubeconfig
-kubectl create secret generic remote-cluster-secret-calico-demo-northeurope -n calico-system --from-literal=datastoreType=kubernetes --from-file=kubeconfig=calico-demo-northeurope-kubeconfig
-kubectl create secret generic remote-cluster-secret-calico-demo-westeurope -n calico-system --from-literal=datastoreType=kubernetes --from-file=kubeconfig=calico-demo-westeurope-kubeconfig
-kubectl create -f remote-cluster-configuration-rbac.yaml
-kubectl create -f remote-cluster-configuration-westus2.yaml
-kubectl create -f remote-cluster-configuration-northeurope.yaml
-kubectl create -f remote-cluster-configuration-westeurope.yaml
+```bash
+kubectl get svc -n ingress-controller
 ```
 
-calico-demo-westus2
+## Deploy Redis on each cluster
 
-```
-export KUBECONFIG="$(pwd)/_output/calico-demo-westus2/kubeconfig/kubeconfig.westus2.json"
-kubectl create secret generic remote-cluster-secret-calico-demo-eastus -n calico-system --from-literal=datastoreType=kubernetes --from-file=kubeconfig=calico-demo-eastus-kubeconfig
-kubectl create secret generic remote-cluster-secret-calico-demo-northeurope -n calico-system --from-literal=datastoreType=kubernetes --from-file=kubeconfig=calico-demo-northeurope-kubeconfig
-kubectl create secret generic remote-cluster-secret-calico-demo-westeurope -n calico-system --from-literal=datastoreType=kubernetes --from-file=kubeconfig=calico-demo-westeurope-kubeconfig
-kubectl create -f remote-cluster-configuration-rbac.yaml
-kubectl create -f remote-cluster-configuration-eastus.yaml
-kubectl create -f remote-cluster-configuration-northeurope.yaml
-kubectl create -f remote-cluster-configuration-westeurope.yaml
-```
+The install bash script assumes you have the context names for each kubeconfig file and they're setup to be unique (AKS does this already and merges them properly)
 
-calico-demo-northeurope
+- Setup the variables including your context names in redis/install-rec.sh
+- Run the script
+  
 
-```
-export KUBECONFIG="$(pwd)/_output/calico-demo-northeurope/kubeconfig/kubeconfig.northeurope.json"
-kubectl create secret generic remote-cluster-secret-calico-demo-eastus -n calico-system --from-literal=datastoreType=kubernetes --from-file=kubeconfig=calico-demo-eastus-kubeconfig
-kubectl create secret generic remote-cluster-secret-calico-demo-westus2 -n calico-system --from-literal=datastoreType=kubernetes --from-file=kubeconfig=calico-demo-westus2-kubeconfig
-kubectl create secret generic remote-cluster-secret-calico-demo-westeurope -n calico-system --from-literal=datastoreType=kubernetes --from-file=kubeconfig=calico-demo-westeurope-kubeconfig
-kubectl create -f remote-cluster-configuration-rbac.yaml
-kubectl create -f remote-cluster-configuration-eastus.yaml
-kubectl create -f remote-cluster-configuration-westus2.yaml
-kubectl create -f remote-cluster-configuration-westeurope.yaml
+```bash
+bash redis/install-rec.sh
 ```
 
-calico-demo-westeurope
+- The State should be running and Spec Status Valid (will take a while to deploy the StatefulSets)
+- Check this on all clusters
 
-```
-export KUBECONFIG="$(pwd)/_output/calico-demo-westeurope/kubeconfig/kubeconfig.westeurope.json"
-kubectl create secret generic remote-cluster-secret-calico-demo-eastus -n calico-system --from-literal=datastoreType=kubernetes --from-file=kubeconfig=calico-demo-eastus-kubeconfig
-kubectl create secret generic remote-cluster-secret-calico-demo-westus2 -n calico-system --from-literal=datastoreType=kubernetes --from-file=kubeconfig=calico-demo-westus2-kubeconfig
-kubectl create secret generic remote-cluster-secret-calico-demo-northeurope -n calico-system --from-literal=datastoreType=kubernetes --from-file=kubeconfig=calico-demo-northeurope-kubeconfig
-kubectl create -f remote-cluster-configuration-rbac.yaml
-kubectl create -f remote-cluster-configuration-eastus.yaml
-kubectl create -f remote-cluster-configuration-westus2.yaml
-kubectl create -f remote-cluster-configuration-northeurope.yaml
+```bash
+~/w/azure-aks-mcm-federation main wip !53 ?5 ❯ kubectl get rec                                                       
+NAME            NODES   VERSION     STATE     SPEC STATUS   LICENSE STATE   SHARDS LIMIT   LICENSE EXPIRATION DATE   AGE
+demo-clusterb   3       6.2.18-65   Running   Valid         Valid           4              2023-03-19T20:36:00Z      3h32m
 ```
 
-## Deploy demo use cases to each region
 
-```
-for REGION in eastus westus2 northeurope westeurope
-do
-export KUBECONFIG="$(pwd)/_output/calico-demo-$REGION/kubeconfig/kubeconfig.$REGION.json"
-kubectl apply -f apps/default/netshoot-$REGION.yaml -n default
-kubectl apply -f apps/gdpr/netshoot-$REGION.yaml -n gdpr
-done
+- Install the REC admission controller by running the script on each cluster
+
+```bash
+bash redis/webhook/install-ac.sh
 ```
 
-Open a shell in each pod and attempt to ping from one demo app to another across the globally disparate regions.
+- Test the admisson controller on each cluster by trying to create an invalid spec
 
-```
-for REGION in eastus westus2 northeurope westeurope
-do
-export KUBECONFIG="$(pwd)/_output/calico-demo-$REGION/kubeconfig/kubeconfig.$REGION.json"
-kubectl get pods -n default --show-lables
-done
+```bash
+bash redis/webhook/test-ac.sh
 ```
 
-```
-kubectl exec -it netshoot -- bash
-ping POD_IP
-```
-
-## Multi Cluster Management Use Case: Enforce EU General Data Protection Regulation (GDPR) data residency requirements
-
-### Examine the label taxonomy applied to each demo app
+You should get a result that says something like this
 
 ```
-for REGION in eastus westus2 northeurope westeurope
-do
-export KUBECONFIG="$(pwd)/_output/calico-demo-$REGION/kubeconfig/kubeconfig.$REGION.json"
-kubectl get pods -n gdpr --show-lables
-done
+Error from server: error when creating "STDIN": admission webhook "redb.admission.redislabs" denied the request: 'illegal' is an invalid value for 'eviction_policy'
 ```
 
-| eastus | westus2 | westeurope | northeurope |
-|-|-|-|-|
-| app: netshoot<br>region: eastus<br>location: virgina<br>geography: us<br>release-stage: dev | app: netshoot<br>region: westus2<br>location: washington<br>geography: us<br>release-stage: prod | app: netshoot<br>region: westeurope<br>location: netherlands<br>geography: eu<br>release-stage: dev | app: netshoot<br>region: northeurope<br>location: ireland<br>geography: eu<br>release-stage: prod |
 
-We will use the `geography` label to identify workloads running across our global set of clusters by physical location and security compliance requirements.  We'll use the federated workload identity to apply policy and control traffic.
+>**Reference**: https://docs.redis.com/latest/kubernetes/deployment/quick-start/
 
-### Examine the `enforce-gdpr-data-sovereignty` policy in the `complicance-controls` policy tier
 
-```
-for REGION in eastus westus2 northeurope westeurope
-do
-export KUBECONFIG="$(pwd)/_output/calico-demo-$REGION/kubeconfig/kubeconfig.$REGION.json"
-kubectl apply -f felix
-kubectl apply -f tiers
-kubectl apply -f networkpolicy
-done
-```
+## Creating the active-active Redis db
 
-```
-cat networkpolicy/compliance-controls.enforce-gdpr-data-sovereignty.yaml
-```
+>**Reference**: https://docs.redis.com/latest/kubernetes/re-clusters/create-aa-database/
 
-```
-apiVersion: projectcalico.org/v3
-kind: GlobalNetworkPolicy
-metadata:
-  name: compliance-controls.enforce-gdpr-data-sovereignty
-spec:
-  tier: compliance-controls
-  order: 0
-  selector: all()
-  namespaceSelector: ''
-  serviceAccountSelector: ''
-  ingress:
-    - action: Deny
-      source:
-        selector: geography != "eu"
-      destination:
-        selector: geography == "eu"
-  egress:
-    - action: Deny
-      source:
-        selector: geography == "eu"
-      destination:
-        selector: geography != "eu"
-  doNotTrack: false
-  applyOnForward: false
-  preDNAT: false
-  types:
-    - Ingress
-    - Egress
+- First you need to setup your DNS aliases in Azure Private DNS for each cluster 
+- There is already an RG and zone setup for this in Azure, feel free to create the DNS A records in there and use the same zone if you want. 
+- Wildcards can be used but I messed up so I created A entries for rach name (oops)
+
+![zone](redis/images/private_zones.png)
+
+![names](redis/images/dns_names.png)
+
+- Open up the file redis/activeconfig.txt in your text editor
+- Get all the values for all 3 clusters using the reference link as an example
+- Get the crdb command ready with all values (as shown at the end of activeconfig.txt)
+- Bash into one of the rec pods on any one cluster and run the crdb command
+
+```bash
+~/workspace/azure-aks-mcm-federation/redis main wip !16 ?5 ❯ kubectl exec -it demo-clustera-0 -- /bin/bash                                                                   ⎈ aks-kartik-cc-mcm-workshop-eastus/redis 15:52:10
+Defaulted container "redis-enterprise-node" out of: redis-enterprise-node, bootstrapper
+redislabs@demo-clustera-0:/opt$ crdb-cli crdb create \
+>   --name testdb \
+>   --memory-size 500MB \
+>   --encryption yes \
+>   --instance fqdn=demo-clustera.redis.svc.cluster.local,url=https://api-clustera.tigera.redisdemo.com,username=demo@redislabs.com,password=xia3cG8b,replication_endpoint=testdb-clustera.tigera.redisdemo.com:443,replication_tls_sni=testdb-clustera.tigera.redisdemo.com \
+>   --instance fqdn=demo-clusterb.redis.svc.cluster.local,url=https://api-clusterb.tigera.redisdemo.com,username=demo@redislabs.com,password=IHqnWuvi,replication_endpoint=testdb-clusterb.tigera.redisdemo.com:443,replication_tls_sni=testdb-clusterb.tigera.redisdemo.com \
+>   --instance fqdn=demo-clusterc.redis.svc.cluster.local,url=https://api-clusterc.tigera.redisdemo.com,username=demo@redislabs.com,password=9q44NKmF,replication_endpoint=testdb-clusterc.tigera.redisdemo.com:443,replication_tls_sni=testdb-clusterc.tigera.redisdemo.com
+Task c28d64db-c652-4530-afa0-d539d001f28f created
+  ---> CRDB GUID Assigned: crdb:b787a586-c212-4de5-93cd-aff32190a972
+  ---> Status changed: queued -> started
+  ---> Status changed: started -> finished
 ```
 
-Open a shell in each pod and attempt to ping from one demo app to another across the globally disparate regions.
+- If it all went well then status should go from started -> finished
+- Check that ingress rule got created for your db (testdb in this example)
 
+```bash
+~/workspace/azure-aks-mcm-federation/redis main wip !16 ?5 ❯ kubectl get ingress                                                               28s ⎈ aks-kartik-cc-mcm-workshop-eastus/redis 15:52:39
+NAME            CLASS    HOSTS                                  ADDRESS     PORTS   AGE
+demo-clustera   <none>   api-clustera.tigera.redisdemo.com      10.0.1.76   80      2d5h
+testdb          <none>   testdb-clustera.tigera.redisdemo.com   10.0.1.76   80      23s
 ```
-kubectl exec -it netshoot --  bash -n gdpr
-ping POD_IP
+
+
+## Testing that replication works
+
+- Change context to your first cluster and bash into one of the db pods 
+
+```bash
+kubectl exec -it -n redis demo-clustera-0 -- /bin/bash
 ```
 
-## Multi Cluster Management Use Case: Global observabiilty
+- Connect to db ClusterIP service for your cluster 
 
-Open Kibana and search for denied flows.
+```bash
+root@demo-clustera-0:/data# redis-cli -h testdb -p 19138
+testdb:19138>
+testdb:19138> set Name "Kartik"
+OK
+testdb:19138> set State "Something"
+OK
+```
 
-Example the flow logs.  You should see the flows between clusters around the world.
+- Change context to your second cluster and bash into one of the db pods
+- When you get the Keys you created, you should see the values got replicated to this cluster's db 
 
-The denied flows are an example of using identity based policy and global traffic control.
+```bash
+root@demo-clusterb-0:/data# redis-cli -h testdb -p 19138
+testdb:19138> get Name
+"Kartik"
+testdb:19138> get State
+"Something"
+```
 
-## Multi Cluster Management Use Case: Multi-region service failover
+- That's it for now
 
-Coming soon...
 
-## References
+## Need to do
 
-* Everything You Need To Know About Kubernetes Networking on Azure: https://youtu.be/JyLtg_SJ1lo
-* Federation for Kubernetes: https://docs.tigera.io/networking/federation/overview
-* Configure Calico Enterprise for multi-cluster management: https://docs.tigera.io/maintenance/mcm/configure
+- Configure Hipstershop service to talk to redis and do its things, check that db is getting seeded
+- Federation
+- Policies
+- Demo flow
+

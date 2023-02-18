@@ -1,0 +1,12 @@
+kind: Installation
+apiVersion: operator.tigera.io/v1
+metadata:
+  name: default
+spec:
+  kubernetesProvider: AKS
+---
+apiVersion: operator.tigera.io/v1
+kind: APIServer
+metadata:
+   name: default
+spec: {}

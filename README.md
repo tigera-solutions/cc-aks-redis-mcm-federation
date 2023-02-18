@@ -13,11 +13,11 @@
 bash aks-prov/create.sh
 ```
 
-## Connect to CC
+### Connect to CC
 
 We know how to do this
 
-## Deploy HAProxy-Ingress
+### Deploy HAProxy-Ingress
 
 ```bash
 bash haproxy-ingress/install.sh
@@ -29,7 +29,7 @@ Check the internal Azure AKS LB assigned the svc an EXTERNAL-IP off the Vnet sub
 kubectl get svc -n ingress-controller
 ```
 
-## Deploy Redis on each cluster
+### Deploy Redis on each cluster
 
 The install bash script assumes you have the context names for each kubeconfig file and they're setup to be unique (AKS does this already and merges them properly)
 
@@ -73,7 +73,7 @@ Error from server: error when creating "STDIN": admission webhook "redb.admissio
 >**Reference**: https://docs.redis.com/latest/kubernetes/deployment/quick-start/
 
 
-## Creating the active-active Redis db
+### Creating the active-active Redis db
 
 >**Reference**: https://docs.redis.com/latest/kubernetes/re-clusters/create-aa-database/
 
@@ -117,7 +117,7 @@ testdb          <none>   testdb-clustera.tigera.redisdemo.com   10.0.1.76   80  
 ```
 
 
-## Testing that replication works
+### Testing that replication works
 
 - Change context to your first cluster and bash into one of the db pods 
 
@@ -148,6 +148,14 @@ testdb:19138> get State
 ```
 
 - That's it for now
+
+## Teardown
+
+- Run the teardown script to delete all the Azure resources
+
+```bash
+bash aks-prov/destroy.sh
+```
 
 
 ## Need to do

@@ -34,7 +34,7 @@ kubectl get svc -n ingress-controller
 
 The install bash script assumes you have the context names for each kubeconfig file and they're setup to be unique (AKS does this already and merges them properly)
 
-- Setup the variables including your context names in redis/install-rec.sh
+- Setup the variables including your context names in ```redis/install-rec.sh```
 - Run the script
   
 

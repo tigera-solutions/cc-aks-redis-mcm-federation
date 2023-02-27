@@ -7,8 +7,9 @@
 
 ### Create Azure Resources
 
+- Copy the example env variables file ```cp aks-prov/setup.env.example aks-prov/setup.env```  
 - Setup your variables in ```aks-prov/setup.env```
-- Run the bringup script
+- Run the bringup script ```bash aks-prov/create.sh```
 
 ```bash
 bash aks-prov/create.sh
@@ -19,6 +20,10 @@ bash aks-prov/create.sh
 We know how to do this
 
 ### Deploy HAProxy-Ingress
+
+- Copy the example env variables file ```cp haproxy-ingress/setup.env.example haproxy-ingress/setup.env```
+- Setup the variables in your ```haproxy-ingress/setup.env```
+- Run the bringup script ```bash haproxy-ingress/install-haproxy.sh```
 
 ```bash
 bash haproxy-ingress/install.sh
@@ -34,8 +39,9 @@ kubectl get svc -n ingress-controller
 
 The install bash script assumes you have the context names for each kubeconfig file and they're setup to be unique (AKS does this already and merges them properly)
 
-- Setup the variables including your context names in ```redis/install-rec.sh```
-- Run the script
+- Copy the example env variables file ```cp redis/setup.env.example redis/setup.env```
+- Setup the variables in your ```redis/setup.env```
+- Run the script at ```redis/install-rec.sh```
   
 
 ```bash

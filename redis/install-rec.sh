@@ -1,8 +1,6 @@
 #!/bin/bash
+source setup.env
 VERSION=`curl --silent https://api.github.com/repos/RedisLabs/redis-enterprise-k8s-docs/releases/latest | grep tag_name | awk -F'"' '{print $4}'`
-NAMESPACE=redis
-K8S_CONTEXTS=("aks-kartik-cc-mcm-workshop-eastus" "aks-kartik-cc-mcm-workshop-westus2" "aks-cc-mcm-workshop-canadacentral")
-INSTALL_FILES= ("my-rec-clustera.yaml" "my-rec-clusterb.yaml" "my-rec-clusterc.yaml")
 
 for i in "${!K8S_CONTEXTS[@]}"
 do
@@ -12,6 +10,7 @@ do
     kubectl create namespace $NAMESPACE
     kubectl -n $NAMESPACE apply -f https://raw.githubusercontent.com/RedisLabs/redis-enterprise-k8s-docs/$VERSION/bundle.yaml
     echo "Sleeping 5 seconds so CRDs get created properly before we install the db pods"
+    sleep 5
     kubectl -n $NAMESPACE apply -f ${INSTALL_FILES[i]}       
     echo "Check resources are being created"
     kubectl get rec -n $NAMESPACE

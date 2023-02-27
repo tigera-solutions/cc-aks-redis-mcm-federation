@@ -183,7 +183,7 @@ delete_aks_cluster () {
         for j in "${!clustername_array[@]}"
         do
             echo Deleting AKS cluster named ${clustername_array[j]} in resource group $RG_NAME
-            az aks delete -n ${clustername_array[j]} -g $RG_NAME --yes --no-wait
+            az aks delete -n ${clustername_array[j]} -g $RG_NAME --yes
         done
     done
 }
@@ -191,10 +191,10 @@ delete_aks_cluster () {
 get_aks_credentials () {
     for i in "${!LOCATION[@]}"
     do
+        RG_NAME=rg-$USER_NAME-$PROJECT_NAME-${LOCATION[i]}
         CLUSTER_NAME=$(az aks list -g $RG_NAME -otsv --query '[].[name]' --only-show-errors)
         readarray -t clustername_array <<<"$CLUSTER_NAME"
         declare -p clustername_array >/dev/null
-        RG_NAME=rg-$USER_NAME-$PROJECT_NAME-${LOCATION[i]}
         for j in "${!clustername_array[@]}"
         do
             az aks get-credentials --resource-group $RG_NAME --name $CLUSTER_NAME --only-show-errors

@@ -3,6 +3,6 @@ local-config.mk*
 _output/
 translations/
 .DS_Store
-aks-prov/test.sh
-aks-prov/setup.env
+*test.sh
+*.env
 redis/activeconfig.txt

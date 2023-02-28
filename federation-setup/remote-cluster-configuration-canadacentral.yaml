@@ -1,9 +1,0 @@
-apiVersion: projectcalico.org/v3
-kind: RemoteClusterConfiguration
-metadata:
-  name: calico-demo-canadacentral
-spec:
-  clusterAccessSecret:
-    name: remote-cluster-secret-calico-demo-canadacentral
-    namespace: calico-system
-    kind: Secret

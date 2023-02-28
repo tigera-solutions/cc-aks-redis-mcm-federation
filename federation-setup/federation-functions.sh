@@ -1,0 +1,182 @@
+#!/usr/bin/env bash
+
+# Source env vars
+source setup.env
+
+apply_rbac () {
+  for i in "${!K8S_CONTEXTS[@]}"
+  do
+    echo "Changing context to K8s cluster ${K8S_CONTEXTS[i]}"
+    kubectl config use-context ${K8S_CONTEXTS[i]}
+    # Create RBAC and remote service accounts in each site
+    echo "Creating remote RBAC and federation SA"
+    kubectl apply -f federation-rem-rbac-kdd.yaml
+    kubectl apply -f federation-remote-sa.yaml
+  done
+}
+
+generate_kubeconfigs () {
+  for i in "${!K8S_CONTEXTS[@]}"
+  do
+    # Create remote kubeconfig files for the sites
+    echo "Making _output directory"
+    mkdir -p _output
+    echo "Create remote cluster kubeconfig for ${REGIONS[i]}"
+    cat > _output/calico-demo-${REGIONS[i]}-kubeconfig <<'EOF'
+apiVersion: v1
+kind: Config
+users:
+- name: tigera-federation-remote-cluster
+  user:
+    token: YOUR_SERVICE_ACCOUNT_TOKEN
+clusters:
+- name: tigera-federation-remote-cluster
+  cluster:
+    certificate-authority-data: YOUR_CERTIFICATE_AUTHORITY_DATA
+    server: YOUR_SERVER_ADDRESS
+contexts:
+- name: tigera-federation-remote-cluster-ctx
+  context:
+    cluster: tigera-federation-remote-cluster
+    user: tigera-federation-remote-cluster
+current-context: tigera-federation-remote-cluster-ctx
+EOF
+    YOUR_SERVICE_ACCOUNT_TOKEN=$(kubectl get secret -n kube-system $(kubectl get sa -n kube-system tigera-federation-remote-cluster -o jsonpath='{range .secrets[*]}{.name}{"\n"}{end}' | grep token) -o go-template='{{.data.token|base64decode}}')
+    YOUR_CERTIFICATE_AUTHORITY_DATA=$(kubectl config view --flatten --minify -o jsonpath='{range .clusters[*]}{.cluster.certificate-authority-data}{"\n"}{end}')
+    YOUR_SERVER_ADDRESS=$(kubectl config view --flatten --minify -o jsonpath='{range .clusters[*]}{.cluster.server}{"\n"}{end}')
+    sed -i  s,YOUR_SERVICE_ACCOUNT_TOKEN,$YOUR_SERVICE_ACCOUNT_TOKEN,g _output/calico-demo-${REGIONS[i]}-kubeconfig
+    sed -i  s,YOUR_CERTIFICATE_AUTHORITY_DATA,$YOUR_CERTIFICATE_AUTHORITY_DATA,g _output/calico-demo-${REGIONS[i]}-kubeconfig
+    sed -i  s,YOUR_SERVER_ADDRESS,$YOUR_SERVER_ADDRESS,g _output/calico-demo-${REGIONS[i]}-kubeconfig
+    echo "Test cluster kubeconfig for ${REGIONS[i]}"
+    kubectl --kubeconfig _output/calico-demo-${REGIONS[i]}-kubeconfig get services
+    echo
+  done
+}
+
+
+# Create secrets for other clusters
+create_secrets () {
+  len=${#REGIONS[@]}
+  for i in "${!REGIONS[@]}"
+  do
+      echo "For kubecontext ${K8S_CONTEXTS[i]} in region ${REGIONS[i]}"
+      kubectl config use-context ${K8S_CONTEXTS[i]}
+      for (( j=0; j<$len; j++))
+      do
+      n=$((j+1))
+      if [[ $(( n % len )) -ne 0 ]]; then
+          NEW_REGION=${REGIONS[(i+j+1) % $len]}
+          KUBECONFIG_FILENAME=calico-demo-$NEW_REGION-kubeconfig
+          SECRET_NAME=remote-cluster-secret-cluster-$NEW_REGION
+          echo "Creating secret named $SECRET_NAME for kubeconfig filename $KUBECONFIG_FILENAME"
+          kubectl create secret generic $SECRET_NAME -n calico-system \
+              --save-config \
+              --dry-run=client \
+              --from-literal=datastoreType=kubernetes \
+              --from-file=kubeconfig=_output/calico-demo-$NEW_REGION-kubeconfig \
+              -o yaml | \
+              kubectl apply -f -
+      fi
+      done
+      echo
+  done
+}
+
+create_remote_configs () {
+# Create remote cluster configs
+  for i in "${!REGIONS[@]}"
+  do
+  SECRET_NAME=remote-cluster-secret-cluster-${REGIONS[i]}
+  cat > _output/remote-cluster-configuration-${REGIONS[i]}.yaml <<EOF
+apiVersion: projectcalico.org/v3
+kind: RemoteClusterConfiguration
+metadata:
+  name: calico-demo-remote-${REGIONS[i]}
+spec:
+  clusterAccessSecret:
+    name: $SECRET_NAME
+    namespace: calico-system
+    kind: Secret
+EOF
+  done
+}
+
+apply_remote_configs () {
+  # Apply relevant remote cluster configs
+  len=${#REGIONS[@]}
+  for i in "${!REGIONS[@]}"
+  do
+      echo "For kubecontext ${K8S_CONTEXTS[i]} in region ${REGIONS[i]}"
+      kubectl config use-context ${K8S_CONTEXTS[i]}
+      # Apply the RBAC file
+      echo "Applying the remote cluster RBAC configuration"
+      kubectl apply -f remote-cluster-configuration-rbac.yaml
+      for (( j=0; j<$len; j++))
+      do
+      n=$((j+1))
+      if [[ $(( n % len )) -ne 0 ]]; then
+          NEW_REGION=${REGIONS[(i+j+1) % $len]}
+          REMOTE_CONFIG=remote-cluster-configuration-$NEW_REGION
+          echo "Applying remote cluster config named $REMOTE_CONFIG.yaml to cluster ${K8S_CONTEXTS[i]}"
+          kubectl apply -f _output/$REMOTE_CONFIG.yaml
+      fi
+      done
+      echo
+  done
+}
+
+delete_remote_configs () {
+  len=${#REGIONS[@]}
+  for i in "${!REGIONS[@]}"
+  do
+      echo "For kubecontext ${K8S_CONTEXTS[i]} in region ${REGIONS[i]}"
+      kubectl config use-context ${K8S_CONTEXTS[i]}
+      for (( j=0; j<$len; j++))
+      do
+      n=$((j+1))
+      if [[ $(( n % len )) -ne 0 ]]; then
+          NEW_REGION=${REGIONS[(i+j+1) % $len]}
+          REMOTE_CONFIG=remote-cluster-configuration-$NEW_REGION
+          echo "Deleting remote cluster config named $REMOTE_CONFIG.yaml from cluster ${K8S_CONTEXTS[i]}"
+          kubectl delete -f _output/$REMOTE_CONFIG.yaml
+      fi
+      done
+      # Delete the RBAC file
+      echo "Deleting the remote cluster RBAC configuration"
+      kubectl delete -f remote-cluster-configuration-rbac.yaml
+      echo
+  done
+}
+
+delete_secrets () {
+  len=${#REGIONS[@]}
+  for i in "${!REGIONS[@]}"
+  do
+      echo "For kubecontext ${K8S_CONTEXTS[i]} in region ${REGIONS[i]}"
+      kubectl config use-context ${K8S_CONTEXTS[i]}
+      for (( j=0; j<$len; j++))
+      do
+      n=$((j+1))
+      if [[ $(( n % len )) -ne 0 ]]; then
+          NEW_REGION=${REGIONS[(i+j+1) % $len]}
+          KUBECONFIG_FILENAME=calico-demo-$NEW_REGION-kubeconfig
+          SECRET_NAME=remote-cluster-secret-cluster-$NEW_REGION
+          echo "Deleting secret named $SECRET_NAME for kubeconfig filename $KUBECONFIG_FILENAME"
+          kubectl delete secret $SECRET_NAME -n calico-system
+      fi
+      done
+      echo
+  done
+}
+
+delete_rbac () {
+  for i in "${!K8S_CONTEXTS[@]}"
+  do
+    echo "Changing context to K8s cluster ${K8S_CONTEXTS[i]}"
+    kubectl config use-context ${K8S_CONTEXTS[i]}
+    # Delete RBAC and remote service accounts in each site
+    echo "Deleting remote RBAC and federation SA"
+    kubectl delete -f federation-rem-rbac-kdd.yaml
+    kubectl delete -f federation-remote-sa.yaml
+  done
+}

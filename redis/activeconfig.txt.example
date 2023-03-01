@@ -23,6 +23,8 @@ REC admin  password:
 Replication hostname: testdb-clusterb.tigera.redisdemo.com
 Replication endpoint: testdb-clusterb.tigera.redisdemo.com:443
 
+kubectl get secret demo-clustera -o jsonpath='{.data.password}' | base64 --decode
+
 
 crdb-cli crdb create \
   --name testdb \
@@ -31,3 +33,16 @@ crdb-cli crdb create \
   --port 11069 \
   --instance fqdn=demo-clustera.redis.svc.cluster.local,url=https://api-clustera.tigera.redisdemo.com,username=demo@redislabs.com,password=XWHuHKvh,replication_endpoint=testdb-clustera.tigera.redisdemo.com:443,replication_tls_sni=testdb-clustera.tigera.redisdemo.com \
   --instance fqdn=demo-clusterb.redis.svc.cluster.local,url=https://api-clusterb.tigera.redisdemo.com,username=demo@redislabs.com,password=u1OQ1LH8,replication_endpoint=testdb-clusterb.tigera.redisdemo.com:443,replication_tls_sni=testdb-clusterb.tigera.redisdemo.com 
+
+
+kubectl exec -it demo-clustera-0 -- /bin/bash                                                                   ⎈ aks-kartik-cc-mcm-workshop-eastus/redis 15:52:10
+Defaulted container "redis-enterprise-node" out of: redis-enterprise-node, bootstrapper
+
+
+crdb-cli crdb create \
+   --name testdb \
+   --memory-size 500MB \
+   --encryption yes \
+   --port 11069 \
+   --instance fqdn=demo-clustera.redis.svc.cluster.local,url=https://api-clustera.tigera.redisdemo.com,username=demo@redislabs.com,password=oCJX5suN,replication_endpoint=testdb-clustera.tigera.redisdemo.com:443,replication_tls_sni=testdb-clustera.tigera.redisdemo.com \
+   --instance fqdn=demo-clusterb.redis.svc.cluster.local,url=https://api-clusterb.tigera.redisdemo.com,username=demo@redislabs.com,password=UFlYqRpm,replication_endpoint=testdb-clusterb.tigera.redisdemo.com:443,replication_tls_sni=testdb-clusterb.tigera.redisdemo.com 

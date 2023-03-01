@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-source federation-functions.sh
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+source $SCRIPT_DIR/federation-functions.sh
 
 # Make sure kubectl is installed
 if ! [ -x "$(command -v kubectl)" ]; then

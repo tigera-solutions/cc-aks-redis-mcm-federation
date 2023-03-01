@@ -1,0 +1,2 @@
+Why do you need a new resource group for the private DNS? I created the `rg-privatedns-uswest3` in the West3 region.
+- I think I got it. I can reuse the one in the useast.

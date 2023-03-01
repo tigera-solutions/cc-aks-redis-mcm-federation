@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
 # Source all env variables
-source setup.env
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+source $SCRIPT_DIR/setup.env
 
 
 # Resource Group functions

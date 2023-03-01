@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-source cluster-functions.sh
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+source $SCRIPT_DIR/cluster-functions.sh
 
 # Delete AKS cluster
 delete_aks_cluster

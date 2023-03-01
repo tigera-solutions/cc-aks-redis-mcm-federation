@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
-source cluster-functions.sh
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+source $SCRIPT_DIR/cluster-functions.sh
+
+if ! command -v ipcalc &> /dev/null
+then
+    echo -e '\033[7;31mERROR\033[0m: \033[1;36mipcalc\033[0m could not be found. Is it installed?'
+    exit
+fi
 
 # Create RGs
 create_rg

@@ -271,7 +271,7 @@ calicoq eval "all()"
 > :warning: **SUPER IMPORTANT**: Delete your privileged debug pod once the actual debugging is done!
 
 
-Let install the hispershop from this repo.
+Let's install the hispershop from this repo.
 
 ```bash
 kubectl apply -f app

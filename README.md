@@ -432,9 +432,9 @@ testdb   10.0.0.116:11069   2d11h
 
 Let's break the db service by putting the Redis pods in 'recovery' mode. In this mode the pods all get recreated, but the database will be offline because there is no quorum (all 3 pods went down). 
 
-While in one cluster, Redis+K8s can survive 2/3 pods dying, all 3 pods dying or the database getting degraded by losing quorum is a situation that can make the db in one cluster/region fail. In this scenario, while the pod endpoint IP is still reachable but database service times out, there is still a snapshot of the db that can be used to repair it but human intervention is necessary.
+While in one cluster, Redis+K8s can survive 2/3 pods dying - however, all 3 pods dying or the database getting degraded by losing quorum is a situation that can make the db in one cluster/region fail by complete loss of quorum. In this scenario, while the pod endpoint IP is still reachable but database service times out, there is still a snapshot of the db that can be used to repair it but human intervention is necessary.
 
-We will utilize this failure scenario to demo the power of Calico Cloud federated services with Redis in Active-Active replication across 2 (or more) clusters and how to survive this situation without service loss.
+We will utilize this failure scenario to take down the database and demo the power of Calico Cloud federated services with Redis in Active-Active replication across 2 (or more) clusters and how to survive this situation without much service loss.
 
 Pick one cluster (or more) to take down the service and change to that context, just remember that atleast one cluster should have it's redis and testdb svc working properly: 
 
@@ -579,17 +579,17 @@ bash aks-prov/destroy.sh
 
 ### Mar 07, 2023
 
-- Finish README and scripts content
-- Tighten up the demo flow
-- Split into modules for workshop and demo consumption
-- Document the gotchas about hipstershop cartservice and Redis svc consumption
+- Finish README and scripts content (TO-DO)
+- Tighten up the demo flow (TO-DO)
+- Document the gotchas about hipstershop cartservice and Redis svc consumption (TO-DO)
+- Generate reference architecture and network diagrams (TO-DO)
 
 ### Mar 02, 2023
 
-- Federated svc for Redis done and failure scenario tested, README instructions updated. Needs to be tested.
-- Need to deploy app in 2nd cluster,  set up DNS round robin for frontend service with sticky sessions
-- Break up the README into modules
-- Generally improve readability, add images, all that good stuff
+- Federated svc for Redis done and failure scenario tested, README instructions updated. Needs to be tested. (DONE)
+- Need to deploy app in 2nd cluster,  set up DNS round robin for frontend service with sticky sessions (DONE)
+- Break up the README into modules (WIP)
+- Generally improve readability, add images, all that good stuff (WIP)
 
 ### Feb 28, 2023
 

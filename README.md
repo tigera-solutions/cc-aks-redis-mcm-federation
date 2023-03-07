@@ -577,6 +577,13 @@ bash aks-prov/destroy.sh
 
 ## Changelog/Need to do
 
+### Mar 07, 2023
+
+- Finish README and scripts content
+- Tighten up the demo flow
+- Split into modules for workshop and demo consumption
+- Document the gotchas about hipstershop cartservice and Redis svc consumption
+
 ### Mar 02, 2023
 
 - Federated svc for Redis done and failure scenario tested, README instructions updated. Needs to be tested.

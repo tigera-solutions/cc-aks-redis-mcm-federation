@@ -22,6 +22,8 @@ generate_kubeconfigs () {
     # Create remote kubeconfig files for the sites
     echo "Making _output directory"
     mkdir -p $SCRIPT_DIR/_output
+    echo "Changing context to K8s cluster ${K8S_CONTEXTS[i]}"
+    kubectl config use-context ${K8S_CONTEXTS[i]}
     echo "Create remote cluster kubeconfig for ${REGIONS[i]}"
     cat > $SCRIPT_DIR/_output/calico-demo-${REGIONS[i]}-kubeconfig <<'EOF'
 apiVersion: v1

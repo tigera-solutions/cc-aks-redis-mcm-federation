@@ -35,12 +35,17 @@ This workshop is organized in sequential modules. One module will build up on to
  
 Module 1 - [Getting Started](/modules/module-1-getting-started.md)  
 Module 2 - [Deploy an Azure AKS cluster](/modules/module-2-deploy-aks.md)  
-Module 3 - [Connect the Azure AKS cluster to Calico Cloud](/modules/module-3-connect-calicocloud.md)  
-Module 4 - [Zero-Trust Workload Access Control](/modules/module-4-workload-access-control.md)  
-Module 5 - [Identity-aware Microsegmentation](/modules/module-5-identity-aware-microsegmentation.md)  
-Module 6 - [Ingress and Egress access control using NetworkSets](/modules/module-6-network-sets.md)   
-Module 7 - [Application Level Observability](/modules/module-7-application-observability.md)    
-Module 8 - [Clean up](/modules/module-8-clean-up.md) 
+Module 3 - Connect the Azure AKS clusters to Calico Cloud  
+Module 4 - HAProxy Ingress Configuration  
+Module 5 - Redis Installations  
+Module 5.a - Redis Recovery  
+Module 6 - Federated Endpoints  
+Module 7 - Demo application  
+Module 8 - Failure Scenario  
+Module 9 - Federated Services  
+Module 10 - Clean up  
+
+[Change Log - To Do List](/ChangeLog-ToDo.md)
 
 --- 
 

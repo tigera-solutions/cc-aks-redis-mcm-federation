@@ -1,0 +1,13 @@
+## Teardown
+
+- Reverse all the config for federation (if done)
+
+```bash
+bash federation-setup/teardown-federation.sh
+```
+
+- Run the teardown script to delete all the Azure resources
+
+```bash
+bash aks-prov/destroy.sh
+```

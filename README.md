@@ -34,7 +34,7 @@ The estimated time to complete this workshop is 75-120 minutes.
 This workshop is organized in sequential modules. One module will build up on top of the previous module, so please, follow the order as proposed below.
  
 Module 1 - [Getting Started](/modules/module-01-getting-started.md)  
-Module 2 - [Deploy an Azure AKS cluster](/modules/module-2-deploy-aks.md)  
+Module 2 - [Deploy an Azure AKS cluster](/modules/module-02-create-resources.md)  
 Module 3 - Connect the Azure AKS clusters to Calico Cloud  
 Module 4 - HAProxy Ingress Configuration  
 Module 5 - Redis Installations  

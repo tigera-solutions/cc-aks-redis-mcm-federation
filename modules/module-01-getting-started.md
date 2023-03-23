@@ -1,4 +1,4 @@
-# Module 01 - Getting Started
+# Module 1 - Getting Started
 
 ## Prerequisites 
 
@@ -66,6 +66,6 @@ The following are the basic requirements to **start** the workshop.
 
 ---
 
-[:arrow_right: Module 02 - Create the Azure Resources](/modules/module-02-create-resources.md) <br>
+[:arrow_right: Module 2 - Create the Azure Resources](/modules/module-02-create-resources.md) <br>
  
 [:leftwards_arrow_with_hook: Back to Main](/README.md)  

@@ -1,4 +1,4 @@
-# Module 02 - Create the Azure Resources
+# Module 2 - Create the Azure Resources
 
 For this workshop we will use the shell scripts to create all needed Azure resources.
 
@@ -12,7 +12,7 @@ The diagram below presents a high-level view of the Azure resources that will be
    cp aks-prov/setup.env.example aks-prov/setup.env
    ```
 
-   The table below explains each of the important variables of the `setup.env` file.
+   The table below explains each of the important variables of the `aks-prov/setup.env` file.
 
    | Variable | Default value | Description|
    |---|---|---|
@@ -35,18 +35,22 @@ The diagram below presents a high-level view of the Azure resources that will be
 
    > __*__ `USER_NAME` and `PROJECT_NAME` variables will be used to name the majority of the resources, so you can easily distintc them from your other resources.
 
+2. Edit the variables file `aks-prov/setup.env`, change the enviroment variable values accordinly and save it.
 
-- Copy the example env variables file ```cp aks-prov/setup.env.example aks-prov/setup.env```  
-- Setup yo ur variables in ```aks-prov/setup.env```
-- Run the bringup script ```bash aks-prov/create.sh```
+   ```bash
+   vi aks-prov/setup.env
+   ```
 
-```bash
-bash aks-prov/create.sh
-```
+3. Once you are happy with the variable values, execute the creation script to create all the needed Azure resources for this workshop.
+   
+   ```bash
+   aks-prov/create.sh
+   ```
 
 ---
 
-next: connect to calico cloud
+[:arrow_right: Module 3 - Getting Started](/modules/module-03-connect-calicocloud.md)  <br>
+[:arrow_left: Module 1 - Getting Started](/modules/module-01-getting-started.md)  <br>
 
-previous: create resources
+[:leftwards_arrow_with_hook: Back to Main](/README.md)
 

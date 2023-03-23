@@ -16,10 +16,24 @@ The diagram below presents a high-level view of the Azure resources that will be
 
    | Variable | Default value | Description|
    |---|---|---|
-   | `USER_NAME` | null | Enter your name |
-   | `PROJECT_NAME` | null | Create a name for your project |
+   | `USER_NAME` | <your-name-here> | Enter your name __*__|
+   | `PROJECT_NAME` | <your-project-name-here> | Create a name for your project __*__ |
+   | `LOCATION` | ("westus" "canadacentral") | Select that locations you want to create the resources |
+   | `VNET_ADDRESS_PREFIX` | ("10.0.0.0/16" "10.1.0.0/16") | CIDR for the VNET on each location |
+   | `NO_OF_SUBNETS` | 2| Number of subnets in the VNET (do not change) |
+   | `SUBNET_CIDR` | 21 | CIDR of the subnets |
+   | `K8S_VERSION` | 1.23 | Kubernetes version |
+   | `NO_OF_NODES` | 3 | Three is the minimun for REDIS to work |
+   | `NODE_VM_SIZE` | ("Standard_B4ms" "Standard_B4ms") | VM type for the nodes on each region |
+   | `MAX_PODS` | 110 | Max number of pods (AKS default is 30) |
+   | `NETWORK_PLUGIN` |  azure | CNI to be used in the AKS clusters |
+   | `OS_DISK_SIZE` | 160 | OS disk size in GB |
+   | `DNS_SVC_IP` | ("10.0.24.10" "10.1.24.10") | DNS service IP on each region |
+   | `SERVICE_CIDR` | ("10.0.24.0/22" "10.1.24.0/22")| CIDR for the services on each region |
+   | `SSH_KEY` | "<path/to/your/public/key.pub>" | Provide your public key to gain access to the nodes |
 
-   > ~~*~~ `USER_NAME` and `PROJECT_NAME` variables will e used to name the majority of the resources, so you can easily distintc them from your other resources.
+
+   > __*__ `USER_NAME` and `PROJECT_NAME` variables will e used to name the majority of the resources, so you can easily distintc them from your other resources.
 
 
    ## LOCATION var set as indexed array

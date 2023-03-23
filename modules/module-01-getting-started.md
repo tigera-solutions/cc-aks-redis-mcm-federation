@@ -64,6 +64,17 @@ The following are the basic requirements to **start** the workshop.
    echo "complete -o default -F __start_kubectl k" >> ~/.bashrc
    ```
 
+7. Install ipcalc.
+   
+   `ipcalc` is used in the creation scripts. Make sure that you have it installed.
+
+   ```bash 
+   curl -LO https://jodies.de/ipcalc-archive/ipcalc-0.41.tar.gz
+   tar -xvf ipcalc-0.41.tar.gz
+   cp -p ipcalc-0.41/ipcalc ~/.local/bin/
+   ipcalc --version
+   ```
+
 ---
 
 [:arrow_right: Module 2 - Create the Azure Resources](/modules/module-02-create-resources.md) <br>

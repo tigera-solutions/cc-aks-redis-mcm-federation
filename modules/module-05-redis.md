@@ -1,4 +1,4 @@
-### Deploy Redis on each cluster
+# Module 5 - Redis installation and configuration
 
 The install bash script assumes you have the context names for each kubeconfig file and they're setup to be unique (AKS does this already and merges them properly)
 
@@ -127,3 +127,9 @@ testdb:19138> get State
 "Something"
 ```
 
+---
+
+[:arrow_right: Module 6 - Federated Endpoints configurarion](/modules/module-06-federated-endpoints.md)  <br>
+
+[:arrow_left:  Module 4 - Deploy and configure HAProxy Ingress](/modules/module-04-haproxy-ingress.md)  
+[:leftwards_arrow_with_hook: Back to Main](/README.md)

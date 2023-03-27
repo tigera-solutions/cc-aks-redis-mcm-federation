@@ -1,4 +1,4 @@
-### Inducing a unique failure scenario
+# Module 8 - Creating a failure scenario
 
 Let's break the db service by putting the Redis pods in 'recovery' mode. In this mode the pods all get recreated, but the database will be offline because there is no quorum (all 3 pods went down). 
 
@@ -36,3 +36,11 @@ Now while this is going on, refresh your browser page and it should timeout with
 ![fail500](app/images/fail500.png)
 
 We want to now use a federated service for testdb to ensure HA and bring up the svc again.
+
+
+---
+
+[:arrow_right: Module 9 - Federated Services configuration](/modules/module-09-federated-services.md)  <br>
+
+[:arrow_left:  Module 7 - Deploy the demostration application](/modules/module-07-application.md)  
+[:leftwards_arrow_with_hook: Back to Main](/README.md)

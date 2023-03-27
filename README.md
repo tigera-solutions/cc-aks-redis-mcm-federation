@@ -34,16 +34,16 @@ The estimated time to complete this workshop is 75-120 minutes.
 This workshop is organized in sequential modules. One module will build up on top of the previous module, so please, follow the order as proposed below.
  
 Module 1 - [Getting Started](/modules/module-01-getting-started.md)  
-Module 2 - [Create Azure Resources](/modules/module-02-create-resources.md)  
-Module 3 - Connect the Azure AKS clusters to Calico Cloud  
-Module 4 - HAProxy Ingress Configuration  
-Module 5 - Redis Installations  
-Module 5.a - Redis Recovery  
-Module 6 - Federated Endpoints  
-Module 7 - Demo application  
-Module 8 - Failure Scenario  
-Module 9 - Federated Services  
-Module 10 - Clean up  
+Module 2 - [Create the Azure Resources](/modules/module-02-create-resources.md)  
+Module 3 - [Connect the Azure AKS clusters to Calico Cloud](/modules/module-03-connect-calicocloud.md)  
+Module 4 - [Deploy and configure HAProxy Ingress](/modules/module-04-haproxy-ingress.md)  
+Module 5 - [Redis installation and configuration](/modules/module-05-redis.md) 
+Module 5.a - [Recovering Redis after an outage](/modules/module-05a-redis-recovery.md)  
+Module 6 - [Federated Endpoints configurarion](/modules/module-06-federated-endpoints.md)  
+Module 7 - [Deploy the demostration application](/modules/module-07-application.md)  
+Module 8 - [Creating a failure scenario](/modules/module-08-failure-scenario.md) 
+Module 9 - [Federated Services configuration](/modules/module-09-federated-services.md)
+Module 10 - [Clean up](/modules/module-10-clean-up)  
 
 [Change Log - To Do List](/ChangeLog-ToDo.md)
 

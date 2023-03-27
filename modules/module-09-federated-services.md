@@ -1,4 +1,4 @@
-### Setup a federated service for testdb
+# Module 9 - Federated Services configuration
 
 First we need to label the testdb service in all our clusters so that the Tigera controller can federate them. Do this in each of your clusters:
 
@@ -90,3 +90,11 @@ Look for the line REDIS_ADDR and change the value to ```testdb-federated.redis``
 >**Note:** "There's a better way to do this with kubectl patch than editing the deployment but I'm too lazy to do it now. We fix this in post - KB"
 
 You'll see the cartservice pod get recreated and once it's up refresh your browser page and the app should reload because now it's essentially talking to the replicated db in your working cluster/s. Yay.
+
+
+---
+
+[:arrow_right: Module 10 - Clean up](/modules/module-10-clean-up)    <br>
+
+[:arrow_left:  Module 8 - Creating a failure scenario](/modules/module-08-failure-scenario.md) 
+[:leftwards_arrow_with_hook: Back to Main](/README.md)

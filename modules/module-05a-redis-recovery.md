@@ -1,4 +1,4 @@
-### Redis service and database recovery
+# Module 5.a - Recovering Redis after an outage
 
 - When you stop and start an AKS cluster or as you go through the rest of the steps, there are two things that need to be done whenever the Redis pods are ALL taken down in a cluster and brought back up
   1. The Redis API service and pods need to be recovered as there is total loss of quorum (all 3 pods went down when the cluster was stopped)
@@ -62,3 +62,12 @@
       DATABASES:
       DB:ID          NAME        TYPE      STATUS      SHARDS      PLACEMENT        REPLICATION         PERSISTENCE         ENDPOINT
       db:2           testdb      redis     active      1           dense            enabled             disabled            redis-11069.demo-clustera.redis.svc.cluster.local:11069
+
+
+
+---
+
+[:arrow_right: Module 6 - Federated Endpoints configurarion](/modules/module-06-federated-endpoints.md)  <br>
+
+[:arrow_left:  Module 5 - Redis installation and configuration](/modules/module-05-redis.md)  
+[:leftwards_arrow_with_hook: Back to Main](/README.md)

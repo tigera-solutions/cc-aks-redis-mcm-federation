@@ -1,4 +1,4 @@
-### Federation Setup
+# Module 6 - Federated Endpoints configurarion
 
 >**Reference**: https://docs.tigera.io/calico-cloud/multicluster/kubeconfig
 
@@ -104,3 +104,10 @@ calicoq eval "all()"
 
 > :warning: **SUPER IMPORTANT**: Delete your privileged debug pod once the actual debugging is done!
 
+
+---
+
+[:arrow_right: Module 7 - Deploy the demostration application](/modules/module-07-application.md)   <br>
+
+[:arrow_left:  Module 5 - Redis installation and configuration](/modules/module-05-redis.md)  
+[:leftwards_arrow_with_hook: Back to Main](/README.md)

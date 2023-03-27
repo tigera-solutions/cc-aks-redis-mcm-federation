@@ -1,4 +1,4 @@
-### Deploy the Demo Microservices App
+# Module 7 - Deploy the demostration application
 
 Let's install the hipstershop microservices app from this repo into all of our clusters. 
 
@@ -86,3 +86,11 @@ kubectl get endpoints testdb -n redis
 NAME     ENDPOINTS          AGE
 testdb   10.0.0.116:11069   2d11h
 ```
+
+
+---
+
+[:arrow_right: Module 8 - Creating a failure scenario](/modules/module-08-failure-scenario.md)  <br>
+
+[:arrow_left:  Module 6 - Federated Endpoints configurarion](/modules/module-06-federated-endpoints.md)  
+[:leftwards_arrow_with_hook: Back to Main](/README.md)

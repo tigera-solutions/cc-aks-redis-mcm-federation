@@ -97,7 +97,7 @@ When you change the cluster, the whole Calico Cloud context will change immediat
 
 --- 
 
-[:arrow_right: Module 4 - Zero Trust Workload Access Control](/modules/module-4-workload-access-control.md)   <br>
+[:arrow_right: Module 4 - Deploy and configure HAProxy Ingress](/modules/module-04-haproxy-ingress.md)   <br>
 
-[:arrow_left: Module 2 - Deploy an Azure AKS cluster](/modules/module-2-deploy-aks.md)  
+[:arrow_left: Module 2 - Create Azure Resources](/modules/module-02-create-resources.md)  
 [:leftwards_arrow_with_hook: Back to Main](/README.md)  

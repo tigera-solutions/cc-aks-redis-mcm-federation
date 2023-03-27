@@ -17,7 +17,7 @@ The diagram below presents a high-level view of the Azure resources that will be
    | Variable | Default value | Description|
    |---|---|---|
    | `USER_NAME` | \<your-name-here\> | Enter your name __*__|
-   | `PROJECT_NAME` | <your-project-name-here> | Create a name for your project __*__ |
+   | `PROJECT_NAME` | \<your-project-name-here\> | Create a name for your project __*__ |
    | `LOCATION` | ("westus" "canadacentral") | Select that locations you want to create the resources |
    | `VNET_ADDRESS_PREFIX` | ("10.0.0.0/16" "10.1.0.0/16") | CIDR for the VNET on each location |
    | `NO_OF_SUBNETS` | 2| Number of subnets in the VNET (do not change) |
@@ -49,8 +49,8 @@ The diagram below presents a high-level view of the Azure resources that will be
 
 ---
 
-[:arrow_right: Module 3 - Getting Started](/modules/module-03-connect-calicocloud.md)  <br>
-[:arrow_left: Module 1 - Getting Started](/modules/module-01-getting-started.md)  <br>
+[:arrow_right: Module 3 - Connect your AKS cluster to Calico Cloud](/modules/module-03-connect-calicocloud.md)  <br>
 
+[:arrow_left: Module 1 - Getting Started](/modules/module-01-getting-started.md)  
 [:leftwards_arrow_with_hook: Back to Main](/README.md)
 

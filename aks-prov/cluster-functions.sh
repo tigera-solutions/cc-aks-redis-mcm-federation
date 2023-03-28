@@ -29,7 +29,8 @@ delete_rg () {
 
 
 get_rg () {
-    az group list -otable | grep rg-$USER_NAME
+    RG_NAME=rg-$USER_NAME-$PROJECT_NAME-$location
+    az group list -otable | grep $RG_NAME
 }
 
 
@@ -93,7 +94,7 @@ delete_network () {
             az network vnet subnet delete --name $SUBNET_NAME --resource-group $RG_NAME --vnet-name $VNET_NAME
         done
         echo Deleting Vnet with name $VNET_NAME, prefix ${VNET_ADDRESS_PREFIX[i]}, removing from resource group $RG_NAME in region ${LOCATION[i]}
-        az network vnet delete --name $VNET_NAME --resource-group $RG_NAME 
+        az network vnet delete --name $VNET_NAME --resource-group $RG_NAME --only-show-errors
     done
 }
 
@@ -149,7 +150,7 @@ create_aks_cluster () {
         # Variables
         CLUSTER_NAME=aks-$USER_NAME-$PROJECT_NAME-${LOCATION[i]}
         RG_NAME=rg-$USER_NAME-$PROJECT_NAME-${LOCATION[i]}
-        NODE_RG_NAME=noderg-$PROJECT_NAME-${LOCATION[i]}
+        NODE_RG_NAME=nrg-$USER_NAME-$PROJECT_NAME-${LOCATION[i]}
         VNET_NAME=vnet-$USER_NAME-$PROJECT_NAME-${LOCATION[i]}
         SUBNET_NAME=subnet-$USER_NAME-$PROJECT_NAME-${LOCATION[i]}-1
         DNS_PREFIX=$PROJECT_NAME-${LOCATION[i]}
@@ -179,12 +180,12 @@ delete_aks_cluster () {
         RG_NAME=rg-$USER_NAME-$PROJECT_NAME-${LOCATION[i]}
         CLUSTER_NAME=$(az aks list -g $RG_NAME -otsv --query '[].[name]' --only-show-errors)
         readarray -t clustername_array <<<"$CLUSTER_NAME"
-        declare -p clustername_array
+        declare -p clustername_array >/dev/null
         echo ${clustername_array[0]}
         for j in "${!clustername_array[@]}"
         do
             echo Deleting AKS cluster named ${clustername_array[j]} in resource group $RG_NAME
-            az aks delete -n ${clustername_array[j]} -g $RG_NAME --yes
+            az aks delete -n ${clustername_array[j]} -g $RG_NAME --yes --only-show-errors
         done
     done
 }

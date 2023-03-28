@@ -32,7 +32,7 @@ echo "Sleeping for 5 seconds to wait for the AKS clusters to finish creating"
 sleep 5
 get_aks_cluster
 
-Get credentials 
+# Get credentials
 # There needs to be a while loop written here to not call the function until the cluster is done creating
 # and has generated a kubeconfig file
 echo "Getting AKS credentials"

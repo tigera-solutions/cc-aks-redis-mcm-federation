@@ -47,9 +47,22 @@ EOF
     YOUR_SERVICE_ACCOUNT_TOKEN=$(kubectl get secret -n kube-system $(kubectl get sa -n kube-system tigera-federation-remote-cluster -o jsonpath='{range .secrets[*]}{.name}{"\n"}{end}' | grep token) -o go-template='{{.data.token|base64decode}}')
     YOUR_CERTIFICATE_AUTHORITY_DATA=$(kubectl config view --flatten --minify -o jsonpath='{range .clusters[*]}{.cluster.certificate-authority-data}{"\n"}{end}')
     YOUR_SERVER_ADDRESS=$(kubectl config view --flatten --minify -o jsonpath='{range .clusters[*]}{.cluster.server}{"\n"}{end}')
-    sed -i "" s,YOUR_SERVICE_ACCOUNT_TOKEN,$YOUR_SERVICE_ACCOUNT_TOKEN,g $SCRIPT_DIR/_output/calico-demo-${REGIONS[i]}-kubeconfig
-    sed -i "" s,YOUR_CERTIFICATE_AUTHORITY_DATA,$YOUR_CERTIFICATE_AUTHORITY_DATA,g $SCRIPT_DIR/_output/calico-demo-${REGIONS[i]}-kubeconfig
-    sed -i "" s,YOUR_SERVER_ADDRESS,$YOUR_SERVER_ADDRESS,g $SCRIPT_DIR/_output/calico-demo-${REGIONS[i]}-kubeconfig
+    IS_GNU_SED=$(which sed | grep gnu | wc -l)
+    if [[ $OSTYPE == linux* ]]; then
+      sed -i s,YOUR_SERVICE_ACCOUNT_TOKEN,$YOUR_SERVICE_ACCOUNT_TOKEN,g $SCRIPT_DIR/_output/calico-demo-${REGIONS[i]}-kubeconfig
+      sed -i s,YOUR_CERTIFICATE_AUTHORITY_DATA,$YOUR_CERTIFICATE_AUTHORITY_DATA,g $SCRIPT_DIR/_output/calico-demo-${REGIONS[i]}-kubeconfig
+      sed -i s,YOUR_SERVER_ADDRESS,$YOUR_SERVER_ADDRESS,g $SCRIPT_DIR/_output/calico-demo-${REGIONS[i]}-kubeconfig
+    elif [[ $OSTYPE == darwin* && $IS_GNU_SED -eq 1 ]]; then
+      sed -i s,YOUR_SERVICE_ACCOUNT_TOKEN,$YOUR_SERVICE_ACCOUNT_TOKEN,g $SCRIPT_DIR/_output/calico-demo-${REGIONS[i]}-kubeconfig
+      sed -i s,YOUR_CERTIFICATE_AUTHORITY_DATA,$YOUR_CERTIFICATE_AUTHORITY_DATA,g $SCRIPT_DIR/_output/calico-demo-${REGIONS[i]}-kubeconfig
+      sed -i s,YOUR_SERVER_ADDRESS,$YOUR_SERVER_ADDRESS,g $SCRIPT_DIR/_output/calico-demo-${REGIONS[i]}-kubeconfig
+    elif [[ $OSTYPE == darwin* && $IS_GNU_SED -eq 0 ]]; then
+      sed -i "" s,YOUR_SERVICE_ACCOUNT_TOKEN,$YOUR_SERVICE_ACCOUNT_TOKEN,g $SCRIPT_DIR/_output/calico-demo-${REGIONS[i]}-kubeconfig
+      sed -i "" s,YOUR_CERTIFICATE_AUTHORITY_DATA,$YOUR_CERTIFICATE_AUTHORITY_DATA,g $SCRIPT_DIR/_output/calico-demo-${REGIONS[i]}-kubeconfig
+      sed -i "" s,YOUR_SERVER_ADDRESS,$YOUR_SERVER_ADDRESS,g $SCRIPT_DIR/_output/calico-demo-${REGIONS[i]}-kubeconfig
+    else
+      echo "sed won't work because it seems like you're on Windows or an unsupported OS"
+    fi
     echo "Test cluster kubeconfig for ${REGIONS[i]}"
     kubectl --kubeconfig $SCRIPT_DIR/_output/calico-demo-${REGIONS[i]}-kubeconfig get services
     echo

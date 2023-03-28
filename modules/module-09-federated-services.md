@@ -94,7 +94,7 @@ You'll see the cartservice pod get recreated and once it's up refresh your brows
 
 ---
 
-[:arrow_right: Module 10 - Clean up](/modules/module-10-clean-up)    <br>
+[:arrow_right: Module 10 - Clean up](/modules/module-10-clean-up.md)    <br>
 
-[:arrow_left:  Module 8 - Creating a failure scenario](/modules/module-08-failure-scenario.md) 
+[:arrow_left:  Module 8 - Creating a failure scenario](/modules/module-08-failure-scenario.md)  
 [:leftwards_arrow_with_hook: Back to Main](/README.md)

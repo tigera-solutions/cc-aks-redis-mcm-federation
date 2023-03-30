@@ -21,66 +21,83 @@ The install bash script assumes you have the context names for each kubeconfig f
    ```
 
 
-- The State should be running and Spec Status Valid (will take a while to deploy the StatefulSets)
-- Check this on all clusters
+4. Check de status for the Redis Entreprise Cluster (rec CRD) on both clusters using the following command, changing the context.
 
   ```bash
-  kubectl get rec                                                       
+  kubectl get -n redis rec                                                       
   ```
 
- 
-  <pre>
-  NAME            NODES   VERSION     STATE     SPEC STATUS   LICENSE STATE   SHARDS LIMIT   LICENSE EXPIRATION DATE   AGE
-  demo-clusterb   3       6.2.18-65   Running   Valid         Valid           4              2023-03-19T20:36:00Z      3h32m
-  </pre>
+   The `STATE` should be `Running` and `SPEC STATUS` should be `Valid` (will take a while to deploy the StatefulSets)
+
+   <pre>
+   NAME            NODES   VERSION     STATE     SPEC STATUS   LICENSE STATE   SHARDS LIMIT   LICENSE EXPIRATION DATE   AGE
+   demo-clusterb   3       6.2.18-65   Running   Valid         Valid           4              2023-03-19T20:36:00Z      3h32m
+   </pre>
 
 
-- Install the REC admission controller by running the script on each cluster
-  (New script that takes care of this on all cluster contexts WIP)
+5. Install the REC admission controller by running the script on each cluster.  
 
-```bash
-bash redis/webhook/install-ac.sh
-```
+   ```bash
+   bash redis/webhook/install-ac.sh
+   ```
 
-- Test the admisson controller on each cluster by trying to create an invalid spec
+6. Test the admisson controller on each cluster by trying to create an invalid spec
 
-```bash
-bash redis/webhook/test-ac.sh
-```
+   ```bash
+   bash redis/webhook/test-ac.sh
+   ```
 
-You should get a result that says something like this
+   You should get a result that says something like this
 
-```
-Error from server: error when creating "STDIN": admission webhook "redb.admission.redislabs" denied the request: 'illegal' is an invalid value for 'eviction_policy'
-```
+   <pre>
+   Error from server: error when creating "STDIN": admission webhook "redb.admission.redislabs" denied the request: 'illegal' is an invalid value for 'eviction_policy'
+   </pre>
 
 
 >**Reference**: https://docs.redis.com/latest/kubernetes/deployment/quick-start/
 
 
-### Creating the active-active Redis db
+## Creating the active-active Redis databases
 
->**Reference**: https://docs.redis.com/latest/kubernetes/re-clusters/create-aa-database/
+Creating an Active-Active database requires routing network access between two Redis Enterprise clusters residing in different Kubernetes clusters. Without the proper access configured for each cluster, syncing between the databases instances will fail.
 
-#### Setting up Azure Private DNS Zone and records
+This process consists of:
 
-- First you need to setup your DNS aliases in Azure Private DNS for each cluster 
-- There is already an RG and zone setup for this in Azure, feel free to create the DNS A records in there and use the same zone if you want. 
-- Wildcards can be used but I messed up so I created A entries for each name (oops)
+1. Documenting values to be used in later steps. It’s important these values are correct and consistent.
+2. Editing the Redis Enterprise cluster (REC) spec file to include the ActiveActive section. This will be slightly different depending on the K8s distribution you are using.
+3. Creating the database with the crdb-cli command. These values must match up with values in the REC resource spec.
 
-![zone](redis/images/private_zones.png)
+### Setting up Azure Private DNS Zone and records
 
-![names](redis/images/dns_names.png)
+1. First you need to setup your DNS aliases in Azure Private DNS for each cluster.  
 
-- The other thing to ensure is that you have added the required Vnets of all the clusters the DNS zone to the virtual network links page so that the cluster vnets can actually resolve your DNS names in the zone.
+   There is already an RG and zone setup for this in Azure, feel free to create the DNS A records in there and use the same zone if you want. 
 
-![vnet_links](redis/images/vnet_links.png)
+   ![zone](redis/images/private_zones.png)
+
+   ![names](redis/images/dns_names.png)
+
+2. The next step is to ensure is that you have added the required Vnets of all the clusters the DNS zone to the virtual network links page so that the cluster vnets can actually resolve your DNS names in the zone.
+
+   ![vnet_links](redis/images/vnet_links.png)
 
 
-#### Getting the active-active config parameters ready
+### Getting the active-active config parameters ready
 
-- Open up the file redis/activeconfig.txt in your text editor
-- Get all the values for all 3 clusters using the reference link as an example
+1. Create a copy the example active config file.
+
+   ```bash
+   cp redis/activeconfig.txt.example redis/activeconfig.txt
+   ``` 
+
+2. Open up the file `redis/activeconfig.txt` in your text editor.
+
+   ```bash
+   vi redis/activeconfig.txt
+   ```
+
+2. Get the values for the two clusters using the reference link as an example.
+
 - Get the crdb command ready with all values (as shown at the end of activeconfig.txt)
 - Bash into one of the rec pods on any one cluster and run the crdb command
 
@@ -140,6 +157,8 @@ testdb:19138> get Name
 testdb:19138> get State
 "Something"
 ```
+
+>**Reference**: https://docs.redis.com/latest/kubernetes/re-clusters/create-aa-database/
 
 ---
 

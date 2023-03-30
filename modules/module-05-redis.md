@@ -73,13 +73,13 @@ This process consists of:
 
    There is already an RG and zone setup for this in Azure, feel free to create the DNS A records in there and use the same zone if you want. 
 
-   ![zone](redis/images/private_zones.png)
+   ![zone](/redis/images/private_zones.png)
 
-   ![names](redis/images/dns_names.png)
+   ![names](/redis/images/dns_names.png)
 
 2. The next step is to ensure is that you have added the required Vnets of all the clusters the DNS zone to the virtual network links page so that the cluster vnets can actually resolve your DNS names in the zone.
 
-   ![vnet_links](redis/images/vnet_links.png)
+   ![vnet_links](/redis/images/vnet_links.png)
 
 
 ### Getting the active-active config parameters ready

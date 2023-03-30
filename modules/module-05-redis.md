@@ -96,7 +96,42 @@ This process consists of:
    vi redis/activeconfig.txt
    ```
 
-2. Get the values for the two clusters using the reference link as an example.
+3. Get password: 
+
+   ```bash
+   export CONTEXT_NAME1=
+   export CONTEXT_NAME2=
+   ``
+
+   k config use-context $CONTEXT_NAME1
+   export SECRET1=$(k get secret -n redis demo-clustera -o jsonpath='{.data.password}' | base64 --decode)
+   k config use-context $CONTEXT_NAME2
+   export SECRET2=$(k get secret -n redis demo-clusterb -o jsonpath='{.data.password}' | base64 --decode)
+
+   ```
+crdb-cli crdb create \
+  --name testdb \
+  --memory-size 500MB \
+  --encryption yes \
+  --port 11069 \
+  --instance fqdn=demo-clustera.redis.svc.cluster.local,url=https://api-clustera.tigera.redisdemo.com,username=demo@redislabs.com,password=XWHuHKvh,replication_endpoint=testdb-clustera.tigera.redisdemo.com:443,replication_tls_sni=testdb-clustera.tigera.redisdemo.com \
+  --instance fqdn=demo-clusterb.redis.svc.cluster.local,url=https://api-clusterb.tigera.redisdemo.com,username=demo@redislabs.com,password=u1OQ1LH8,replication_endpoint=testdb-clusterb.tigera.redisdemo.com:443,replication_tls_sni=testdb-clusterb.tigera.redisdemo.com
+
+
+crdb-cli crdb create \
+  --name testdb \
+  --memory-size 500MB \
+  --encryption yes \
+  --port 11069 \
+  --instance fqdn=demo-clustera.redis.svc.cluster.local,url=https://api-clustera.tigera.redisdemo.com,username=demo@redislabs.com,password=XWHuHKvh,replication_endpoint=testdb-clustera.tigera.redisdemo.com:443,replication_tls_sni=testdb-clustera.tigera.redisdemo.com \
+  --instance fqdn=demo-clusterb.redis.svc.cluster.local,url=https://api-clusterb.tigera.redisdemo.com,username=demo@redislabs.com,password=u1OQ1LH8,replication_endpoint=testdb-clusterb.tigera.redisdemo.com:443,replication_tls_sni=testdb-clusterb.tigera.redisdemo.com
+
+
+
+
+
+
+3. Get the values for the two clusters using the reference link as an example.
 
 - Get the crdb command ready with all values (as shown at the end of activeconfig.txt)
 - Bash into one of the rec pods on any one cluster and run the crdb command

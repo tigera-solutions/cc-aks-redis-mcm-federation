@@ -2,23 +2,37 @@
 
 The install bash script assumes you have the context names for each kubeconfig file and they're setup to be unique (AKS does this already and merges them properly)
 
-- Copy the example env variables file ```cp redis/setup.env.example redis/setup.env```
-- Setup the variables in your ```redis/setup.env```
-- Run the script at ```redis/install-rec.sh```
-  
+1. Copy the example environment variables file 
 
-```bash
-bash redis/install-rec.sh
-```
+   ```bash
+   cp redis/setup.env.example redis/setup.env
+   ```
+
+2. In the file `redis/setup.env` you need to setup the name of the kubeconfig contexts of the both clusters in it following the format from from the `redis/setup.env.example` file. There are also variable that will be used for setting up the cluster. Don't change them, unless you know what you are doing.
+ 
+   ```bash
+   vi redis/install-rec.sh
+   ```
+
+3. Run the script at  `redis/install-rec.sh`
+  
+   ```bash
+   bash redis/install-rec.sh
+   ```
+
 
 - The State should be running and Spec Status Valid (will take a while to deploy the StatefulSets)
 - Check this on all clusters
 
-```bash
-~/w/azure-aks-mcm-federation main wip !53 ?5 ❯ kubectl get rec                                                       
-NAME            NODES   VERSION     STATE     SPEC STATUS   LICENSE STATE   SHARDS LIMIT   LICENSE EXPIRATION DATE   AGE
-demo-clusterb   3       6.2.18-65   Running   Valid         Valid           4              2023-03-19T20:36:00Z      3h32m
-```
+  ```bash
+  kubectl get rec                                                       
+  ```
+
+ 
+  <pre>
+  NAME            NODES   VERSION     STATE     SPEC STATUS   LICENSE STATE   SHARDS LIMIT   LICENSE EXPIRATION DATE   AGE
+  demo-clusterb   3       6.2.18-65   Running   Valid         Valid           4              2023-03-19T20:36:00Z      3h32m
+  </pre>
 
 
 - Install the REC admission controller by running the script on each cluster

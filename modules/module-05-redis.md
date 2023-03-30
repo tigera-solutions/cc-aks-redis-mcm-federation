@@ -11,7 +11,7 @@ The install bash script assumes you have the context names for each kubeconfig f
 2. In the file `redis/setup.env` you need to setup the name of the kubeconfig contexts of the both clusters in it following the format from from the `redis/setup.env.example` file. There are also variable that will be used for setting up the cluster. Don't change them, unless you know what you are doing.
  
    ```bash
-   vi redis/install-rec.sh
+   vi redis/setup.env
    ```
 
 3. Run the script at  `redis/install-rec.sh`

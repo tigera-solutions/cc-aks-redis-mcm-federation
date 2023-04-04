@@ -98,17 +98,24 @@ This process consists of:
 
 3. Get password: 
 
+   Setup the context variables for each of the context names 
    ```bash
    export CONTEXT_NAME1=
    export CONTEXT_NAME2=
-   ``
+   ```
+   
 
+
+   ```bash
    k config use-context $CONTEXT_NAME1
    export SECRET1=$(k get secret -n redis demo-clustera -o jsonpath='{.data.password}' | base64 --decode)
    k config use-context $CONTEXT_NAME2
    export SECRET2=$(k get secret -n redis demo-clusterb -o jsonpath='{.data.password}' | base64 --decode)
-
    ```
+
+   
+
+
 crdb-cli crdb create \
   --name testdb \
   --memory-size 500MB \

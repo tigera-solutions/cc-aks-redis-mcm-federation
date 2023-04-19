@@ -128,14 +128,31 @@ Creating an active-active database requires routing network access between two R
   redis-cli -h testdb -p 11069
   ```
 
-- Create a couple of key-value-pair
+  You will see the redis cli prompt for the testdb database as follow:
+
+  ```bash
+  testdb:11069>
+  ```
+
+- Create a sample key-value-pair
 
   ```bash
   set Name "Calico"
-  set State "Tigera"
   ```
 
-- Change context to your second cluster and bash into one of the db pods
+  The response should be:
+
+  <pre>
+  OK
+  </pre>
+
+- Exit from the redis cli and the pod.
+
+- Change context to your second cluster and bash into one of the db pods 
+
+  ```bash
+  kubectl exec -it -n redis demo-clusterb-0 -- /bin/bash
+  ```
 
 - When you get the Keys you created, you should see the values got replicated to this cluster's db 
 
@@ -145,7 +162,6 @@ Creating an active-active database requires routing network access between two R
   
   ```bash
   get Name
-  get State
   ```
 
 >**Reference**: https://docs.redis.com/latest/kubernetes/re-clusters/create-aa-database/

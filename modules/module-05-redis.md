@@ -86,24 +86,24 @@ Creating an active-active database requires routing network access between two R
    bash redis/create-db.sh
    ```
 
-  - If it all went well then status should go from started -> finished
-  - Check that services got created for your db (testdb in this example) on both clusters.
+   - If it all went well then status should go from started -> finished
+   - Check that services got created for your db (testdb in this example) on both clusters.
 
-    ```bash
-    kubectl get svc -n redis
-    ```
+     ```bash
+     kubectl get svc -n redis
+     ```
 
-    The ouput should show the following:
+   The output should show the following:
 
-    <pre>
-    NAME                 TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)             AGE
-    admission            ClusterIP   10.1.27.12    <none>        443/TCP             20d
-    demo-clustera        ClusterIP   10.1.25.127   <none>        9443/TCP,8001/TCP   20d
-    demo-clustera-prom   ClusterIP   None          <none>        8070/TCP            20d
-    demo-clustera-ui     ClusterIP   10.1.25.183   <none>        8443/TCP            20d
-    testdb               ClusterIP   10.1.27.18    <none>        11069/TCP           7m32s
-    testdb-headless      ClusterIP   None          <none>        11069/TCP           7m32s
-    </pre>
+   <pre>
+   NAME                 TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)             AGE
+   admission            ClusterIP   10.1.27.12    <none>        443/TCP             20d
+   demo-clustera        ClusterIP   10.1.25.127   <none>        9443/TCP,8001/TCP   20d
+   demo-clustera-prom   ClusterIP   None          <none>        8070/TCP            20d
+   demo-clustera-ui     ClusterIP   10.1.25.183   <none>        8443/TCP            20d
+   testdb               ClusterIP   10.1.27.18    <none>        11069/TCP           7m32s
+   testdb-headless      ClusterIP   None          <none>        11069/TCP           7m32s
+   </pre>
 
 
 ### Testing that replication works

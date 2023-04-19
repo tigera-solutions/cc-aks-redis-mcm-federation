@@ -47,12 +47,13 @@ The install bash script assumes you have the context names for each kubeconfig f
    bash redis/webhook/test-ac.sh
    ```
 
-   You should get a result that says something like this
+   You should get a result that says something like this:
 
    <pre>
    Error from server: error when creating "STDIN": admission webhook "redb.admission.redislabs" denied the request: 'illegal' is an invalid value for 'eviction_policy'
    </pre>
 
+   This message means that the admission controller is not allowing an invalid configuration to be applied, verifying that it works.
 
 >**Reference**: https://docs.redis.com/latest/kubernetes/deployment/quick-start/
 

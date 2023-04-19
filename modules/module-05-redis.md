@@ -60,19 +60,13 @@ The install bash script assumes you have the context names for each kubeconfig f
 
 ## Creating the active-active Redis databases
 
-Creating an Active-Active database requires routing network access between two Redis Enterprise clusters residing in different Kubernetes clusters. Without the proper access configured for each cluster, syncing between the databases instances will fail.
-
-This process consists of:
-
-1. Documenting values to be used in later steps. It’s important these values are correct and consistent.
-2. Editing the Redis Enterprise cluster (REC) spec file to include the ActiveActive section. This will be slightly different depending on the K8s distribution you are using.
-3. Creating the database with the crdb-cli command. These values must match up with values in the REC resource spec.
+Creating an active-active database requires routing network access between two Redis Enterprise clusters residing in different Kubernetes clusters. Without the proper access configured for each cluster, syncing between the databases instances will fail.
 
 ### Setting up Azure Private DNS Zone and records
 
 1. First you need to setup your DNS aliases in Azure Private DNS for each cluster.  
 
-   There is already an RG and zone setup for this in Azure, feel free to create the DNS A records in there and use the same zone if you want. 
+   Create a new Private DNS zone and then, create the DNS A records in there. 
 
    ![zone](/redis/images/private_zones.png)
 
@@ -82,93 +76,34 @@ This process consists of:
 
    ![vnet_links](/redis/images/vnet_links.png)
 
+   Before moving forward, make sure that the `Link status` is `Completed`.
 
 ### Getting the active-active config parameters ready
 
-1. Create a copy the example active config file.
+1. Run the script to create the active-active configuration.
 
    ```bash
-   cp redis/activeconfig.txt.example redis/activeconfig.txt
-   ``` 
-
-2. Open up the file `redis/activeconfig.txt` in your text editor.
-
-   ```bash
-   vi redis/activeconfig.txt
+   bash redis/create-db.sh
    ```
 
-3. Get password: 
+  - If it all went well then status should go from started -> finished
+  - Check that services got created for your db (testdb in this example) on both clusters.
 
-   Setup the context variables for each of the context names 
-   ```bash
-   export CONTEXT_NAME1=
-   export CONTEXT_NAME2=
-   ```
-   
+    ```bash
+    kubectl get svc -n redis
+    ```
 
+    The ouput should show the following:
 
-   ```bash
-   k config use-context $CONTEXT_NAME1
-   export SECRET1=$(k get secret -n redis demo-clustera -o jsonpath='{.data.password}' | base64 --decode)
-   k config use-context $CONTEXT_NAME2
-   export SECRET2=$(k get secret -n redis demo-clusterb -o jsonpath='{.data.password}' | base64 --decode)
-   ```
-
-   
-
-
-crdb-cli crdb create \
-  --name testdb \
-  --memory-size 500MB \
-  --encryption yes \
-  --port 11069 \
-  --instance fqdn=demo-clustera.redis.svc.cluster.local,url=https://api-clustera.tigera.redisdemo.com,username=demo@redislabs.com,password=XWHuHKvh,replication_endpoint=testdb-clustera.tigera.redisdemo.com:443,replication_tls_sni=testdb-clustera.tigera.redisdemo.com \
-  --instance fqdn=demo-clusterb.redis.svc.cluster.local,url=https://api-clusterb.tigera.redisdemo.com,username=demo@redislabs.com,password=u1OQ1LH8,replication_endpoint=testdb-clusterb.tigera.redisdemo.com:443,replication_tls_sni=testdb-clusterb.tigera.redisdemo.com
-
-
-crdb-cli crdb create \
-  --name testdb \
-  --memory-size 500MB \
-  --encryption yes \
-  --port 11069 \
-  --instance fqdn=demo-clustera.redis.svc.cluster.local,url=https://api-clustera.tigera.redisdemo.com,username=demo@redislabs.com,password=XWHuHKvh,replication_endpoint=testdb-clustera.tigera.redisdemo.com:443,replication_tls_sni=testdb-clustera.tigera.redisdemo.com \
-  --instance fqdn=demo-clusterb.redis.svc.cluster.local,url=https://api-clusterb.tigera.redisdemo.com,username=demo@redislabs.com,password=u1OQ1LH8,replication_endpoint=testdb-clusterb.tigera.redisdemo.com:443,replication_tls_sni=testdb-clusterb.tigera.redisdemo.com
-
-
-
-
-
-
-3. Get the values for the two clusters using the reference link as an example.
-
-- Get the crdb command ready with all values (as shown at the end of activeconfig.txt)
-- Bash into one of the rec pods on any one cluster and run the crdb command
-
-```bash
-~/workspace/azure-aks-mcm-federation/redis main wip !16 ?5 ❯ kubectl exec -it demo-clustera-0 -- /bin/bash                                                                   ⎈ aks-kartik-cc-mcm-workshop-eastus/redis 15:52:10
-Defaulted container "redis-enterprise-node" out of: redis-enterprise-node, bootstrapper
-redislabs@demo-clustera-0:/opt$ crdb-cli crdb create \
->   --name testdb \
->   --memory-size 500MB \
->   --encryption yes \
->   --instance fqdn=demo-clustera.redis.svc.cluster.local,url=https://api-clustera.tigera.redisdemo.com,username=demo@redislabs.com,password=xia3cG8b,replication_endpoint=testdb-clustera.tigera.redisdemo.com:443,replication_tls_sni=testdb-clustera.tigera.redisdemo.com \
->   --instance fqdn=demo-clusterb.redis.svc.cluster.local,url=https://api-clusterb.tigera.redisdemo.com,username=demo@redislabs.com,password=IHqnWuvi,replication_endpoint=testdb-clusterb.tigera.redisdemo.com:443,replication_tls_sni=testdb-clusterb.tigera.redisdemo.com \
->   --instance fqdn=demo-clusterc.redis.svc.cluster.local,url=https://api-clusterc.tigera.redisdemo.com,username=demo@redislabs.com,password=9q44NKmF,replication_endpoint=testdb-clusterc.tigera.redisdemo.com:443,replication_tls_sni=testdb-clusterc.tigera.redisdemo.com
-Task c28d64db-c652-4530-afa0-d539d001f28f created
-  ---> CRDB GUID Assigned: crdb:b787a586-c212-4de5-93cd-aff32190a972
-  ---> Status changed: queued -> started
-  ---> Status changed: started -> finished
-```
-
-- If it all went well then status should go from started -> finished
-- Check that ingress rule got created for your db (testdb in this example)
-
-```bash
-~/workspace/azure-aks-mcm-federation/redis main wip !16 ?5 ❯ kubectl get ingress                                                               28s ⎈ aks-kartik-cc-mcm-workshop-eastus/redis 15:52:39
-NAME            CLASS    HOSTS                                  ADDRESS     PORTS   AGE
-demo-clustera   <none>   api-clustera.tigera.redisdemo.com      10.0.1.76   80      2d5h
-testdb          <none>   testdb-clustera.tigera.redisdemo.com   10.0.1.76   80      23s
-```
+    <pre>
+    NAME                 TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)             AGE
+    admission            ClusterIP   10.1.27.12    <none>        443/TCP             20d
+    demo-clustera        ClusterIP   10.1.25.127   <none>        9443/TCP,8001/TCP   20d
+    demo-clustera-prom   ClusterIP   None          <none>        8070/TCP            20d
+    demo-clustera-ui     ClusterIP   10.1.25.183   <none>        8443/TCP            20d
+    testdb               ClusterIP   10.1.27.18    <none>        11069/TCP           7m32s
+    testdb-headless      ClusterIP   None          <none>        11069/TCP           7m32s
+    </pre>
 
 
 ### Testing that replication works

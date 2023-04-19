@@ -41,7 +41,7 @@ The install bash script assumes you have the context names for each kubeconfig f
    bash redis/webhook/install-ac.sh
    ```
 
-6. Test the admisson controller on each cluster by trying to create an invalid spec
+6. Test the admisson controller on each cluster by trying to create an invalid specification. 
 
    ```bash
    bash redis/webhook/test-ac.sh

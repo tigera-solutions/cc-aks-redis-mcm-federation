@@ -86,7 +86,15 @@ Creating an active-active database requires routing network access between two R
    bash redis/create-db.sh
    ```
 
-   - If it all went well then status should go from started -> finished
+   - If it all went well then status should go from `started` -> `finished`
+
+     <pre>
+     Task c28d64db-c652-4530-afa0-d539d001f28f created
+     ---> CRDB GUID Assigned: crdb:b787a586-c212-4de5-93cd-aff32190a972
+     ---> Status changed: queued -> started
+     ---> Status changed: started -> finished
+     </pre>
+
    - Check that services got created for your db (testdb in this example) on both clusters.
 
      ```bash

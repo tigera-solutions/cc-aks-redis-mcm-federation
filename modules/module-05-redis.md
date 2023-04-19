@@ -125,12 +125,14 @@ Creating an active-active database requires routing network access between two R
 - Connect to db ClusterIP service for your cluster 
 
   ```bash
-  root@demo-clustera-0:/data# redis-cli -h testdb -p 11069
-  testdb:11069>
-  testdb:11069> set Name "Calico"
-  OK
-  testdb:11069> set State "Tigera"
-  OK
+  redis-cli -h testdb -p 11069
+  ```
+
+- Create a couple of key-value-pair
+
+  ```bash
+  set Name "Calico"
+  set State "Tigera"
   ```
 
 - Change context to your second cluster and bash into one of the db pods
@@ -138,11 +140,12 @@ Creating an active-active database requires routing network access between two R
 - When you get the Keys you created, you should see the values got replicated to this cluster's db 
 
   ```bash
-  root@demo-clusterb-0:/data# redis-cli -h testdb -p 11069
-  testdb:11069> get Name
-  "Calico"
-  testdb:11069> get State
-  "Tigera"
+  redis-cli -h testdb -p 11069
+  ```
+  
+  ```bash
+  get Name
+  get State
   ```
 
 >**Reference**: https://docs.redis.com/latest/kubernetes/re-clusters/create-aa-database/

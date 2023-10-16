@@ -114,7 +114,6 @@ create_peering () {
         REMOTE_VNET_ID=$(az network vnet show --resource-group $REMOTE_RG_NAME --name $REMOTE_VNET_NAME --query id --out tsv)
         az network vnet peering create -g $RG_NAME -n ${LOCATION[i]}-to-${NEW_LOCATION[i]} --vnet-name $VNET_NAME --remote-vnet $REMOTE_VNET_ID --allow-vnet-access --allow-forwarded-traffic
         az network vnet peering create -g $REMOTE_RG_NAME -n ${NEW_LOCATION[i]}-to-${LOCATION[i]} --vnet-name $REMOTE_VNET_NAME --remote-vnet $VNET_ID --allow-vnet-access --allow-forwarded-traffic
-        #echo
     done
 }
 

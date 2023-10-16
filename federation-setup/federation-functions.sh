@@ -13,6 +13,14 @@ apply_rbac () {
     echo "Creating remote RBAC and federation SA"
     kubectl apply -f $SCRIPT_DIR/federation-rem-rbac-kdd.yaml
     kubectl apply -f $SCRIPT_DIR/federation-remote-sa.yaml
+    KUBE_VERSION=$( kubectl version --short 2>&1 | grep Server | cut -d':' -f2 | sed 's/ //g' | sed 's/^.//' )
+    RESULT=$(awk -v a="$KUBE_VERSION" -v b=1.24.0 'BEGIN{print(a>=b)}')
+    if [[ "$RESULT" -eq 1 ]]; then
+      echo "Your K8s version is $KUBE_VERSION which is >1.24.0 so we install SA secret manually"
+      kubectl apply -f $SCRIPT_DIR/federation-remote-secret.yaml
+    else
+      echo "Your K8s version is $KUBE_VERSION which is <1.24.0 so we don't need to install SA secret manually"
+    fi
   done
 }
 
@@ -44,7 +52,13 @@ contexts:
     user: tigera-federation-remote-cluster
 current-context: tigera-federation-remote-cluster-ctx
 EOF
-    YOUR_SERVICE_ACCOUNT_TOKEN=$(kubectl get secret -n kube-system $(kubectl get sa -n kube-system tigera-federation-remote-cluster -o jsonpath='{range .secrets[*]}{.name}{"\n"}{end}' | grep token) -o go-template='{{.data.token|base64decode}}')
+    KUBE_VERSION=$( kubectl version --short 2>&1 | grep Server | cut -d':' -f2 | sed 's/ //g' | sed 's/^.//' )
+    RESULT=$(awk -v a="$KUBE_VERSION" -v b=1.24.0 'BEGIN{print(a>=b)}')
+    if [[ "$RESULT" -eq 1 ]]; then
+      YOUR_SERVICE_ACCOUNT_TOKEN=$(kubectl get secret tigera-federation-remote-cluster -n kube-system -o go-template='{{.data.token|base64decode}}')
+    else
+      YOUR_SERVICE_ACCOUNT_TOKEN=$(kubectl get secret -n kube-system $(kubectl get sa -n kube-system tigera-federation-remote-cluster -o jsonpath='{range .secrets[*]}{.name}{"\n"}{end}' | grep token) -o go-template='{{.data.token|base64decode}}')
+    fi
     YOUR_CERTIFICATE_AUTHORITY_DATA=$(kubectl config view --flatten --minify -o jsonpath='{range .clusters[*]}{.cluster.certificate-authority-data}{"\n"}{end}')
     YOUR_SERVER_ADDRESS=$(kubectl config view --flatten --minify -o jsonpath='{range .clusters[*]}{.cluster.server}{"\n"}{end}')
     IS_GNU_SED=$(which sed | grep gnu | wc -l)
@@ -192,6 +206,12 @@ delete_rbac () {
     kubectl config use-context ${K8S_CONTEXTS[i]}
     # Delete RBAC and remote service accounts in each site
     echo "Deleting remote RBAC and federation SA"
+    KUBE_VERSION=$( kubectl version --short 2>&1 | grep Server | cut -d':' -f2 | sed 's/ //g' | sed 's/^.//' )
+    RESULT=$(awk -v a="$KUBE_VERSION" -v b=1.24.0 'BEGIN{print(a>=b)}')
+    if [[ "$RESULT" -eq 1 ]]; then
+      echo "Your K8s version is $KUBE_VERSION which is >1.24.0 so we delete SA secret manually"
+      kubectl delete -f $SCRIPT_DIR/federation-remote-secret.yaml
+    fi
     kubectl delete -f $SCRIPT_DIR/federation-rem-rbac-kdd.yaml
     kubectl delete -f $SCRIPT_DIR/federation-remote-sa.yaml
   done
